@@ -76,10 +76,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glm;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\include;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\include;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Caolan\Desktop\Assignments\Assignment1\Assignment1\glm;C:\Users\Caolan\Desktop\Assignments\Assignment1\Include;C:\Users\Caolan\Desktop\Assignments\Assignment1\Assignment1\glew-1.10.0\include;C:\Users\Caolan\Desktop\Assignments\Assignment1\Assignment1\freeglut\include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glm;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\include;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\include;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\include;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\lib\Release\Win32;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\lib\Release\Win32;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\lib;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Caolan\Desktop\Assignments\Assignment1\Assignment1\glew-1.10.0\lib\Release\Win32;C:\Users\Caolan\Desktop\Assignments\Assignment1\Assignment1\freeglut\lib;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\lib\Release\Win32;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\glew-1.10.0\lib\Release\Win32;C:\Users\Caolan\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\lib;C:\Users\barryc10\Desktop\4th Year\Computer Graphics\Assignments\Assignment1\Assignment1\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -124,13 +124,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="maths_funcs.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\maths_funcs.h" />
+    <ClInclude Include="..\Include\teapot.h" />
     <ClInclude Include="..\shader_s.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Shaders\fragmentShader.fs" />
-    <None Include="..\Shaders\vertexShader.vs" />
+    <Text Include="..\Shaders\simpleFragmentShader.txt" />
+    <Text Include="..\Shaders\simpleVertexShader.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

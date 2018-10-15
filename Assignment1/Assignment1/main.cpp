@@ -1,246 +1,321 @@
 
+//Some Windows Headers (For Time, IO, etc.)
+#include <windows.h>
+#include <mmsystem.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
-#include <shader_s.h>
+#include "maths_funcs.h" //Anton's math class
+#include "teapot.h" // teapot mesh
+#include <string> 
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-
-//Global variable for VAO
-GLuint VAObject = 0;
-GLfloat vertices[] = { -0.5f, -0.5f, 0.0f,
-						 0.5f, -0.5f, 0.0f,
-						 0.0f, 0.5f, 0.0f };
-GLuint ShaderID;
-GLuint transformLocation;
-glm::mat4 translation();
-
 using namespace std;
+GLuint shaderProgramID;
 
-int init()
+unsigned int teapot_vao = 0;
+int width = 800.0;
+int height = 600.0;
+GLuint loc1;
+GLuint loc2;
+
+
+mat4 ortho(float bottom, float top, float left, float right, float near1, float far1) {
+	mat4 m = zero_mat4();
+	m.m[0] = (2 / (right - left));
+	m.m[3] = -((right + left) / (right - left));
+	m.m[5] = (2 / (top - bottom));
+	m.m[7] = -((top + bottom) / (top - bottom));
+	m.m[10] = -(2 / (far1 - near1));
+	m.m[11] = -((far1+ near1) / (far1 - near1));
+	m.m[15] = 0.0f;
+	//print(m);
+	return m;
+
+}
+
+// Shader Functions- click on + to expand
+#pragma region SHADER_FUNCTIONS
+
+std::string readShaderSource(const std::string& fileName)
 {
+	std::ifstream file(fileName.c_str());
+	if (file.fail()) {
+		cout << "error loading shader called " << fileName;
+		exit(1);
+	}
+
+	std::stringstream stream;
+	stream << file.rdbuf();
+	file.close();
+
+	return stream.str();
+}
+
+static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
+{
+	// create a shader object
+	GLuint ShaderObj = glCreateShader(ShaderType);
+
+	if (ShaderObj == 0) {
+		fprintf(stderr, "Error creating shader type %d\n", ShaderType);
+		exit(0);
+	}
+	std::string outShader = readShaderSource(pShaderText);
+	const char* pShaderSource = outShader.c_str();
+
+	// Bind the source code to the shader, this happens before compilation
+	glShaderSource(ShaderObj, 1, (const GLchar**)&pShaderSource, NULL);
+	// compile the shader and check for errors
+	glCompileShader(ShaderObj);
+	GLint success;
+	// check for shader related errors using glGetShaderiv
+	glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		GLchar InfoLog[1024];
+		glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
+		fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
+		exit(1);
+	}
+	// Attach the compiled shader object to the program object
+	glAttachShader(ShaderProgram, ShaderObj);
+}
+
+GLuint CompileShaders()
+{
+	//Start the process of setting up our shaders by creating a program ID
+	//Note: we will link all the shaders together into this ID
+	shaderProgramID = glCreateProgram();
+	if (shaderProgramID == 0) {
+		fprintf(stderr, "Error creating shader program\n");
+		exit(1);
+	}
+
+	// Create two shader objects, one for the vertex, and one for the fragment shader
+	AddShader(shaderProgramID, "../Shaders/simpleVertexShader.txt", GL_VERTEX_SHADER);
+	AddShader(shaderProgramID, "../Shaders/simpleFragmentShader.txt", GL_FRAGMENT_SHADER);
+
+	GLint Success = 0;
+	GLchar ErrorLog[1024] = { 0 };
+
+
+	// After compiling all shader objects and attaching them to the program, we can finally link it
+	glLinkProgram(shaderProgramID);
+	// check for program related errors using glGetProgramiv
+	glGetProgramiv(shaderProgramID, GL_LINK_STATUS, &Success);
+	if (Success == 0) {
+		glGetProgramInfoLog(shaderProgramID, sizeof(ErrorLog), NULL, ErrorLog);
+		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
+		exit(1);
+	}
+
+	// program has been successfully linked but needs to be validated to check whether the program can execute given the current pipeline state
+	glValidateProgram(shaderProgramID);
+	// check for program related errors using glGetProgramiv
+	glGetProgramiv(shaderProgramID, GL_VALIDATE_STATUS, &Success);
+	if (!Success) {
+		glGetProgramInfoLog(shaderProgramID, sizeof(ErrorLog), NULL, ErrorLog);
+		fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
+		exit(1);
+	}
+	// Finally, use the linked shader program
+	// Note: this program will stay in effect for all draw calls until you replace it with another or explicitly disable its use
+	glUseProgram(shaderProgramID);
+
+	return shaderProgramID;
+}
+#pragma endregion SHADER_FUNCTIONS
+
+// VBO Functions - click on + to expand
+#pragma region VBO_FUNCTIONS
+
+
+
+
+
+void generateObjectBufferTeapot() {
+	GLuint vp_vbo = 0;
+
+	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
+	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normals");
+
+	glGenBuffers(1, &vp_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 3 * teapot_vertex_count * sizeof(float), teapot_vertex_points, GL_STATIC_DRAW);
+	GLuint vn_vbo = 0;
+	glGenBuffers(1, &vn_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 3 * teapot_vertex_count * sizeof(float), teapot_normals, GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &teapot_vao);
+	glBindVertexArray(teapot_vao);
+
+	glEnableVertexAttribArray(loc1);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(loc2);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+}
+
+
+#pragma endregion VBO_FUNCTIONS
+
+
+double timeN = 0;
+double rot = 0;
+
+
+void display() {
+
+	// tell GL to only draw onto a pixel if the shape is closer to the viewer
+	glEnable(GL_DEPTH_TEST); // enable depth-testing
+	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(shaderProgramID);
+
+
+	//Declare your uniform variables that will be used in your shader
+	int matrix_location = glGetUniformLocation(shaderProgramID, "model");
+	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
+	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
+
+
+	//Here is where the code for the viewport lab will go, to get you started I have drawn a t-pot in the bottom left
+	//The model transform rotates the object by 45 degrees, the view transform sets the camera at -40 on the z-axis, and the perspective projection is setup using Antons method
+	//mat4 N = glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+
+	// top-left
+	int xTL = 0;
+	int yTL = height / 2;
+
+	mat4 viewTL = translate(identity_mat4(), vec3(0.0, 0.0, -40.0)); 
+	mat4 persp_projTL = perspective(45.0, 1.5, 0.1, 100.0);
+	mat4 modelTL = rotate_x_deg(identity_mat4(), 90);
+
+	glViewport(0, yTL, width/2, height / 2);
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projTL.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewTL.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelTL.m);
+	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
+
+	// bottom-left
+	int xBL = 0;
+	int yBL = 0;
+
+	mat4 viewBL = translate(identity_mat4(), vec3(0.0, 0.0, -50.0));
+	mat4 persp_projBL = ortho(-1.0f, 1.0f, 1.0f, 2.0f, 0.2f, 5.0f);
+
+	//persp_projBL = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
+	mat4 modelBL = rotate_z_deg(identity_mat4(), 0);
+	modelBL = rotate_y_deg(modelBL, -30);
+	modelBL = rotate_x_deg(modelBL, 30);
+
+	glViewport(xBL, yBL, width / 2, height / 2);
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projBL.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewBL.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelBL.m);
+	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
+
+	// top right
+	int xTR = width / 2;
+	int yTR = height / 2;
+
+	//vec3 cam = vec3(10, 10, 10);
+	//mat4 viewTR = look_at(cam, cam, cam);
+	mat4 viewTR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
+	mat4 persp_projTR = perspective(45.0, (float)width/(float)height, 0.1, 100.0);
+	mat4 modelTR = rotate_z_deg(identity_mat4(), 0);
+
+	glViewport(xTR, yTR, width / 2, height / 2);
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projTR.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewTR.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelTR.m);
+	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
+
+	// bottom- right
+	int xBR = width / 2;
+	int yBR = 0;
+
+	mat4 viewBR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
+	mat4 persp_projBR = perspective(45.0, 1.0, 0.1, 100.0);
+	rot += 0.2;
+	mat4 modelBR = rotate_y_deg(identity_mat4(), rot);
+
+	glViewport(xBR, yBR, width / 2, height / 2);
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projBR.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewBR.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelBR.m);
+	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
+
+	glutSwapBuffers();
+}
+
+void updateScene() {
+
+	// Wait until at least 16ms passed since start of last frame (Effectively caps framerate at ~60fps)
+	static double  last_time = 0;
+	double curr_time = timeGetTime();
+	timeN = curr_time;
+	float  delta = (curr_time - last_time) * 0.001f;
+	if (delta > 0.03f)
+		delta = 0.03f;
+	last_time = curr_time;
+
+	// Draw the next frame
+	glutPostRedisplay();
+}
+
+
+void init()
+{
+	// Create 3 vertices that make up a triangle that fits on the viewport 
+	GLfloat vertices[] = { -1.0f, -1.0f, 0.0f, 1.0,
+			1.0f, -1.0f, 0.0f, 1.0,
+			0.0f, 1.0f, 0.0f, 1.0 };
+	// Create a color array that identfies the colors of each vertex (format R, G, B, A)
+	GLfloat colors[] = { 0.0f, 1.0f, 0.0f, 1.0f,
+			1.0f, 0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f, 1.0f };
+	// Set up the shaders
+	GLuint shaderProgramID = CompileShaders();
+
+	// load teapot mesh into a vertex buffer array
+	generateObjectBufferTeapot();
+
+}
+
+int main(int argc, char** argv) {
+
+	// Set up the window
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(width, height);
+	glutCreateWindow("Viewport Teapots");
+	// Tell glut where the display function is
+	glutDisplayFunc(display);
+	glutIdleFunc(updateScene);
+
 	// A call to glewInit() must be done after glut is initialized!
+	glewExperimental = GL_TRUE; //for non-lab machines, this line gives better modern GL support
 	GLenum res = glewInit();
 	// Check for any errors
 	if (res != GLEW_OK) {
 		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
 		return 1;
 	}
-}
-
-GLuint vertexArrayObject(GLuint* VAO, GLuint* VBO, GLfloat vertices[], GLuint numVertices)
-{
-
-	glGenVertexArrays(1, VAO);
-	glGenBuffers(1, VBO);
-
-	//Bind vertex array object first
-	glBindVertexArray(*VAO);
-	
-	//Binds current buffer with VBO
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-
-	//Provides data for buffer
-	glBufferData(GL_ARRAY_BUFFER, numVertices * 6 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	
-	//Creates vertex attribute pointer	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(float), (void*) 0);
-	
-	//Enables it
-	glEnableVertexAttribArray(0);
-
-	//Reset buffer
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	//Resets bound vertex arrray object
-	glBindVertexArray(0);
-
-	return *VAO;
-}
-
-void display() {
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	// NB: Make the call to draw the geometry in the currently activated vertex buffer.
-	//This is where the GPU starts to work!
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glutSwapBuffers();
-}
-
-void createObject(GLuint* VAObject, GLuint* VAO, GLuint* VBO)
-{
-	GLuint numVertices = sizeof(vertices) / (sizeof(vertices[0]) * 4);
-	*VAObject = vertexArrayObject(VAO, VBO, vertices, numVertices);
-
-}
-
-
-// Assignment 2
-/*
-• Keyboard control
-• Keypress to show: Rotation around the x- y- and z-axis (~20%)
-• Keypress to show: Translation in the x- y- and z- direction (~20%)
-• Keypress to show: Uniform and non-uniform Scaling (~20%)
-• Keypress to show: Combined Transformations (~20%)
-• Multiple triangles in the scene, using the same buffer but creating a new transformation
-matrix for each one. (~20%)
-*/
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-float xRot, yRot, zRot = 0;
-float xTrans, yTrans, zTrans = 0;
-float xScale, yScale, zScale = 0;
-
-float * axisP = &xRot;
-
-glm::mat4 rotater()
-{
-	//Identity matrix
-	glm::mat4 trans = glm::mat4(1.0f);
-	//Translate to origin
-	//trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 0.0f));
-
-	//Scale at origin
-	trans = glm::scale(trans, glm::vec3((1.0f + xScale), (1.0f + yScale), (1.0f + zScale)));
-	
-	//Rotate in x,y,z plane
-	trans = glm::rotate(trans, xRot, glm::vec3(1.0f, 0.0f, 0.0f));
-	trans = glm::rotate(trans, yRot, glm::vec3(0.0f, 1.0f, 0.0f));
-	trans = glm::rotate(trans, zRot, glm::vec3(0.0f, 0.0f, 1.0f));
-
-	//Translate back to position
-	trans = glm::translate(trans, glm::vec3(xTrans, yTrans, zTrans));
-	
-	return trans;
-}
-
-glm::mat4 translation()
-{
-
-	std::cout << "translation";
-	//Identity matrix
-	glm::mat4 trans = glm::mat4(1.0f);
-
-	trans = glm::rotate(trans, xRot, glm::vec3(1.0f, 0.0f, 0.0f));
-	trans = glm::rotate(trans, yRot, glm::vec3(0.0f, 1.0f, 0.0f));
-	trans = glm::rotate(trans, zRot, glm::vec3(0.0f, 0.0f, 1.0f));
-
-	//Translate to position
-	trans = glm::translate(trans, glm::vec3(xTrans, yTrans, zTrans));
-	return trans;
-}
-
-void keyboard(unsigned char key, int x, int y)
-{
-	glm::mat4 trans;
-	switch (key)
-	{
-	case('1'):
-		xTrans -= 0.05; trans = translation(); break;
-	case('2'):
-		yTrans -= 0.05; trans = translation(); break;
-	case('3'):
-		zTrans -= 0.05; trans = translation(); break;
-	case('x'):
-		xTrans += 0.05; trans = translation(); break;
-	case('y'):
-		yTrans += 0.05; trans = translation(); break;
-	case('z'):
-		zTrans += 0.05; trans = translation(); break;
-	case('t'):
-		xRot += 0.1; trans = rotater();  break;
-	case('u'):
-		yRot += 0.1; trans = rotater(); break;
-	case('v'):
-		zRot += 0.1; trans = rotater(); break;
-	case('4'):
-		xRot -= 0.1; trans = rotater(); break;
-	case('5'):
-		yRot -= 0.1; trans = rotater(); break;
-	case('6'):
-		zRot -= 0.1; trans = rotater(); break;
-	case('+'):
-		xScale += 0.1f;
-		yScale += 0.1f;
-		zScale += 0.1f; 
-		trans = rotater();  break;
-	case('-'):
-		xScale -= 0.1f;
-		yScale -= 0.1f;
-		zScale -= 0.1f; 
-		trans = rotater(); break;
-	case('n'):
-		xScale += 0.2f; 
-		trans = rotater(); break;
-	default:
-		break;
-	}
-
-	//Pass matrix to shader program
-	glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(trans));
-}
-void draw()
-{
-	glutPostRedisplay();
-}
-
-int main(int argc, char** argv){
-
-	// Set up the window
-	glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Hello Triangle");
-
-	//glEnable(GL_DEPTH_TEST);
-	
-	// Tell glut where the display function is
-	glutDisplayFunc(display);
-	int error = init();
-	if (error)
-		return 1;
-
-	Shader myShader("C:/Users/Caolan/Desktop/4th Year/Computer Graphics/Assignments/Assignment1/Shaders/vertexShader.vs", 
-					"C:/Users/Caolan/Desktop/4th Year/Computer Graphics/Assignments/Assignment1/Shaders/fragmentShader.fs"); 
-
-	GLuint VAO = 0, VBO = 0;
-	createObject(&VAObject, &VAO, &VBO);
-
-	//Use object for rendering
-	glBindVertexArray(VAObject);
-	myShader.use();
-
-	//Get transform matrix location from vertex shader program
-	unsigned int transformLoc = glGetUniformLocation(myShader.ID, "transform");
-	transformLocation = transformLoc;
-	
-	/*
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-	projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-	*/
-
-	//Initialise identity matrix
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 0.0f));
-	
-	//Pass matrix to shader program
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-	
-	//Register callbackl  for input
-	glutKeyboardFunc(keyboard);
-	
-	//Always redraw
-	glutIdleFunc(draw);
-
-	//Event loop
+	// Set up your objects and shaders
+	init();
+	// Begin infinite event loop
 	glutMainLoop();
-    return 0;
+	return 0;
 }
