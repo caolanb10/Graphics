@@ -199,7 +199,7 @@ void display() {
 	int yTL = height / 2;
 
 	mat4 viewTL = translate(identity_mat4(), vec3(0.0, 0.0, -40.0)); 
-	mat4 persp_projTL = perspective(45.0, 1.5, 0.1, 100.0);
+	mat4 persp_projTL = perspective(45.0, 1.5, 40.0, 200.0);
 	mat4 modelTL = rotate_x_deg(identity_mat4(), 90);
 
 	glViewport(0, yTL, width/2, height / 2);
@@ -213,7 +213,7 @@ void display() {
 	int yBL = 0;
 
 	mat4 viewBL = translate(identity_mat4(), vec3(0.0, 0.0, -50.0));
-	mat4 persp_projBL = ortho(-1.0f, 1.0f, 1.0f, 2.0f, 0.2f, 5.0f);
+	mat4 persp_projBL = ortho(0.0f, 1.0f, -1.0f, 1.0f, 0.0f, 4.0f);
 
 	//persp_projBL = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 modelBL = rotate_z_deg(identity_mat4(), 0);
@@ -230,9 +230,11 @@ void display() {
 	int xTR = width / 2;
 	int yTR = height / 2;
 
-	//vec3 cam = vec3(10, 10, 10);
-	//mat4 viewTR = look_at(cam, cam, cam);
-	mat4 viewTR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
+	vec3 cam = vec3(-10, 0, -10);
+	vec3 id = vec3(0, -30, 10);
+	mat4 viewTR = look_at(cam, id, id);
+	//mat4 viewTR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
+	print(viewTR);
 	mat4 persp_projTR = perspective(45.0, (float)width/(float)height, 0.1, 100.0);
 	mat4 modelTR = rotate_z_deg(identity_mat4(), 0);
 
