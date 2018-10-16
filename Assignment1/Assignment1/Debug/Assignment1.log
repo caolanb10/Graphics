@@ -1,17 +1,21 @@
 ﻿  main.cpp
-c:\users\caolan\desktop\assignments\assignment1\include\teapot.h(2980): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\caolan\desktop\assignments\assignment1\include\teapot.h(5959): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\caolan\desktop\assignments\assignment1\include\teapot.h(8938): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(25): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(26): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(152): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(156): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(209): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(227): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(238): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(245): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(252): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(254): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(260): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-c:\users\caolan\desktop\assignments\assignment1\assignment1\main.cpp(271): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  Assignment1.vcxproj -> C:\Users\Caolan\Desktop\Assignments\Assignment1\Debug\Assignment1.exe
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(2980): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(2980): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(5959): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(5959): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(8938): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+c:\users\barryc10\desktop\assignments\assignment1\include\teapot.h(8938): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(25): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(26): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(152): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(156): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(209): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(227): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(239): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(246): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(253): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(255): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(261): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+c:\users\barryc10\desktop\assignments\assignment1\assignment1\main.cpp(272): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Assignment1.vcxproj -> C:\Users\barryc10\Desktop\Assignments\Assignment1\Debug\Assignment1.exe
+  Assignment1.vcxproj -> C:\Users\barryc10\Desktop\Assignments\Assignment1\Debug\Assignment1.pdb (Partial PDB)
