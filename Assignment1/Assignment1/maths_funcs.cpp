@@ -129,7 +129,7 @@ void print (const mat4& m) {
 /*---------------------------------VECTOR FUNCTIONS-----------------------------------*/
 
 float length (const vec3& v) {
-	return sqrt (v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2]);
+	return sqrtf (v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2]);
 }
 
 float length2 (const vec3& v) {
@@ -247,12 +247,12 @@ NB i suspect that the z is backwards here but i've used in in
 several places like this. d'oh!
 */
 float direction_to_heading (vec3 d) {
-	return atan2 (-d.v[0], -d.v[2]) * ONE_RAD_IN_DEG;
+	return atan2f (-d.v[0], -d.v[2]) * (float)ONE_RAD_IN_DEG;
 }
 
 vec3 heading_to_direction (float degrees) {
-	float rad = degrees * ONE_DEG_IN_RAD;
-	return vec3 (-sin (rad), 0.0f, -cos (rad));
+	float rad = degrees * (float)ONE_DEG_IN_RAD;
+	return vec3 (-sinf(rad), 0.0f, -cosf(rad));
 }
 
 /*---------------------------------MATRIX FUNCTIONS-----------------------------------*/
@@ -427,36 +427,36 @@ mat4 translate (const mat4& m, const vec3& v) {
 // rotate around x axis by an angle in degrees
 mat4 rotate_x_deg (const mat4& m, float deg) {
 	// convert to radians
-	float rad = deg * ONE_DEG_IN_RAD;
+	float rad = deg * (float)ONE_DEG_IN_RAD;
 	mat4 m_r = identity_mat4 ();
-	m_r.m[5] = cos (rad);
-	m_r.m[9] = -sin (rad);
-	m_r.m[6] = sin (rad);
-	m_r.m[10] = cos (rad);
+	m_r.m[5] = cosf(rad);
+	m_r.m[9] = -sinf(rad);
+	m_r.m[6] = sinf(rad);
+	m_r.m[10] = cosf(rad);
 	return m_r * m;
 }
 
 // rotate around y axis by an angle in degrees
 mat4 rotate_y_deg (const mat4& m, float deg) {
 	// convert to radians
-	float rad = deg * ONE_DEG_IN_RAD;
+	float rad = deg * (float)ONE_DEG_IN_RAD;
 	mat4 m_r = identity_mat4 ();
-	m_r.m[0] = cos (rad);
-	m_r.m[8] = sin (rad);
-	m_r.m[2] = -sin (rad);
-	m_r.m[10] = cos (rad);
+	m_r.m[0] = cosf(rad);
+	m_r.m[8] = sinf(rad);
+	m_r.m[2] = -sinf(rad);
+	m_r.m[10] = cosf(rad);
 	return m_r * m;
 }
 
 // rotate around z axis by an angle in degrees
 mat4 rotate_z_deg (const mat4& m, float deg) {
 	// convert to radians
-	float rad = deg * ONE_DEG_IN_RAD;
+	float rad = deg * (float)ONE_DEG_IN_RAD;
 	mat4 m_r = identity_mat4 ();
-	m_r.m[0] = cos (rad);
-	m_r.m[4] = -sin (rad);
-	m_r.m[1] = sin (rad);
-	m_r.m[5] = cos (rad);
+	m_r.m[0] = cosf(rad);
+	m_r.m[4] = -sinf(rad);
+	m_r.m[1] = sinf(rad);
+	m_r.m[5] = cosf(rad);
 	return m_r * m;
 }
 
@@ -495,7 +495,7 @@ mat4 look_at (const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
 	ori.m[6] = -f.v[1];
 	ori.m[10] = -f.v[2];
 	
-	return ori * p; //p * ori;
+	return ori * p;//p * ori;
 }
 
 /*
@@ -517,8 +517,8 @@ m n o p
 
 // returns a perspective function mimicing the opengl projection style. COLUMN ORDER
 mat4 perspective (float fovy, float aspect, float near, float far) {
-	float fov_rad = fovy * ONE_DEG_IN_RAD;
-	float range = tan (fov_rad / 2.0f) * near;
+	float fov_rad = fovy * (float)ONE_DEG_IN_RAD;
+	float range = tanf(fov_rad / 2.0f) * near;
 	float sx = (2.0f * near) / (range * aspect + range * aspect);
 	float sy = near / range;
 	float sz = -(far + near) / (far - near);
@@ -580,15 +580,15 @@ versor versor::operator+ (const versor& rhs) {
 
 versor quat_from_axis_rad (float radians, float x, float y, float z) {
 	versor result;
-	result.q[0] = cos (radians / 2.0);
-	result.q[1] = sin (radians / 2.0) * x;
-	result.q[2] = sin (radians / 2.0) * y;
-	result.q[3] = sin (radians / 2.0) * z;
+	result.q[0] = cosf(radians / 2.0f);
+	result.q[1] = sinf(radians / 2.0f) * x;
+	result.q[2] = sinf(radians / 2.0f) * y;
+	result.q[3] = sinf(radians / 2.0f) * z;
 	return result;
 }
 
 versor quat_from_axis_deg (float degrees, float x, float y, float z) {
-	return quat_from_axis_rad (ONE_DEG_IN_RAD * degrees, x, y, z);
+	return quat_from_axis_rad ((float)ONE_DEG_IN_RAD * degrees, x, y, z);
 }
 
 mat4 quat_to_mat4 (const versor& q) {
@@ -626,7 +626,7 @@ versor normalise (versor& q) {
 	if (fabs (1.0f - sum) < thresh) {
 		return q;
 	}
-	float mag = sqrt (sum);
+	float mag = sqrtf(sum);
 	return q / mag;
 }
 
@@ -652,7 +652,7 @@ versor slerp (versor& q, versor& r, float t) {
 		return q;
 	}
 	// Calculate temporary values
-	float sin_half_theta = sqrt (1.0f - cos_half_theta * cos_half_theta);
+	float sin_half_theta = sqrtf(1.0f - cos_half_theta * cos_half_theta);
 	// if theta = 180 degrees then result is not fully defined
 	// we could rotate around any axis normal to qa or qb
 	versor result;
@@ -662,9 +662,9 @@ versor slerp (versor& q, versor& r, float t) {
 		}
 		return result;
 	}
-	float half_theta = acos (cos_half_theta);
-	float a = sin ((1.0f - t) * half_theta) / sin_half_theta;
-	float b = sin (t * half_theta) / sin_half_theta;
+	float half_theta = acosf(cos_half_theta);
+	float a = sinf((1.0f - t) * half_theta) / sin_half_theta;
+	float b = sinf(t * half_theta) / sin_half_theta;
 	for (int i = 0; i < 4; i++) {
 		result.q[i] = q.q[i] * a + r.q[i] * b;
 	}

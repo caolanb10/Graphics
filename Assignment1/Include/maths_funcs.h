@@ -2,8 +2,8 @@
 #define _MATHS_FUNCS_H_
 
 // const used to convert degrees into radians
-#define TWO_PI 2.0 * M_PI
-#define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444
+#define TWO_PI 2.0f * M_PI
+#define ONE_DEG_IN_RAD (2.0f * M_PI) / 360.0f // 0.017444444
 #define ONE_RAD_IN_DEG 57.2957795
 
 struct vec2;

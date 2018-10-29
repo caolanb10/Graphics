@@ -1,76 +1,163 @@
-
-//Some Windows Headers (For Time, IO, etc.)
+// Windows includes (For Time, IO, etc.)
 #include <windows.h>
 #include <mmsystem.h>
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <math.h>
+#include <vector> // STL dynamic memory.
+#include <algorithm>
+
+// OpenGL includes
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <iostream>
-#include "maths_funcs.h" //Anton's math class
-#include "teapot.h" // teapot mesh
-#include <string> 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
 
-// Macro for indexing vertex buffer
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+// Assimp includes
+#include <assimp/cimport.h> // scene importer
+#include <assimp/scene.h> // collects data
+#include <assimp/postprocess.h> // various extra operations
+
+// Project includes
+#include "maths_funcs.h"
+
+#undef min
+#undef max
+
+
+/*----------------------------------------------------------------------------
+MESH TO LOAD
+----------------------------------------------------------------------------*/
+// this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
+// put the mesh in your project directory, or provide a filepath for it here
+
+#define MESH_NAME "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/monkeyhead_smooth.dae"
+#define HAND "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/Rigged Hand_dae.dae"
+#define HOUSE "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/Medieval_House.obj"
+#define CYL "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/cyl.dae"
+
+
+/*----------------------------------------------------------------------------
+----------------------------------------------------------------------------*/
+
+#pragma region SimpleTypes
+typedef struct
+{
+	size_t mPointCount = 0;
+	std::vector<vec3> mVertices;
+	std::vector<vec3> mNormals;
+	std::vector<vec2> mTextureCoords;
+} ModelData;
+#pragma endregion SimpleTypes
 
 using namespace std;
 GLuint shaderProgramID;
 
-unsigned int teapot_vao = 0;
-int width = 800.0;
-int height = 600.0;
-GLuint loc1;
-GLuint loc2;
+ModelData mesh_data;
+GLuint mesh_vao1 = 0;
+GLuint mesh_vao2 = 0;
 
+int width = 800;
+int height = 600;
 
-mat4 ortho(float bottom, float top, float left, float right, float near1, float far1) {
-	mat4 m = zero_mat4();
-	m.m[0] = (2 / (right - left));
-	m.m[3] = -((right + left) / (right - left));
-	m.m[5] = (2 / (top - bottom));
-	m.m[7] = -((top + bottom) / (top - bottom));
-	m.m[10] = -(2 / (far1 - near1));
-	m.m[11] = -((far1+ near1) / (far1 - near1));
-	m.m[15] = 0.0f;
-	//print(m);
-	return m;
+GLuint loc1, loc2, loc3;
+GLfloat rotate_y = 0.0f;
+GLfloat translate_x = 0.0f;
+GLfloat monkey_x = 0.0f;
+GLfloat monkey2_x = 0.0f;
 
+#pragma region MESH LOADING
+/*----------------------------------------------------------------------------
+MESH LOADING FUNCTION
+----------------------------------------------------------------------------*/
+
+ModelData load_mesh(const char* file_name) {
+	ModelData modelData;
+
+	/* Use assimp to read the model file, forcing it to be read as    */
+	/* triangles. The second flag (aiProcess_PreTransformVertices) is */
+	/* relevant if there are multiple meshes in the model file that   */
+	/* are offset from the origin. This is pre-transform them so      */
+	/* they're in the right position.                                 */
+	const aiScene* scene = aiImportFile(
+		file_name, 
+		aiProcess_Triangulate | aiProcess_PreTransformVertices
+	); 
+
+	if (!scene) {
+		fprintf(stderr, "ERROR: reading mesh %s\n", file_name);
+		return modelData;
+	}
+
+	printf("  %i materials\n", scene->mNumMaterials);
+	printf("  %i meshes\n", scene->mNumMeshes);
+	printf("  %i textures\n", scene->mNumTextures);
+
+	for (unsigned int m_i = 0; m_i < scene->mNumMeshes; m_i++) {
+		const aiMesh* mesh = scene->mMeshes[m_i];
+		printf("    %i vertices in mesh\n", mesh->mNumVertices);
+		modelData.mPointCount += mesh->mNumVertices;
+		for (unsigned int v_i = 0; v_i < mesh->mNumVertices; v_i++) {
+			if (mesh->HasPositions()) {
+				const aiVector3D* vp = &(mesh->mVertices[v_i]);
+				modelData.mVertices.push_back(vec3(vp->x, vp->y, vp->z));
+			}
+			if (mesh->HasNormals()) {
+				const aiVector3D* vn = &(mesh->mNormals[v_i]);
+				modelData.mNormals.push_back(vec3(vn->x, vn->y, vn->z));
+			}
+			if (mesh->HasTextureCoords(0)) {
+				const aiVector3D* vt = &(mesh->mTextureCoords[0][v_i]);
+				modelData.mTextureCoords.push_back(vec2(vt->x, vt->y));
+			}
+			if (mesh->HasTangentsAndBitangents()) {
+				/* You can extract tangents and bitangents here              */
+				/* Note that you might need to make Assimp generate this     */
+				/* data for you. Take a look at the flags that aiImportFile  */
+				/* can take.                                                 */
+			}
+		}
+	}
+
+	aiReleaseImport(scene);
+	return modelData;
 }
+
+#pragma endregion MESH LOADING
 
 // Shader Functions- click on + to expand
 #pragma region SHADER_FUNCTIONS
+char* readShaderSource(const char* shaderFile) {
+	FILE* fp;
+	fopen_s(&fp, shaderFile, "rb");
 
-std::string readShaderSource(const std::string& fileName)
-{
-	std::ifstream file(fileName.c_str());
-	if (file.fail()) {
-		cout << "error loading shader called " << fileName;
-		exit(1);
-	}
+	if (fp == NULL) { return NULL; }
 
-	std::stringstream stream;
-	stream << file.rdbuf();
-	file.close();
+	fseek(fp, 0L, SEEK_END);
+	long size = ftell(fp);
 
-	return stream.str();
+	fseek(fp, 0L, SEEK_SET);
+	char* buf = new char[size + 1];
+	fread(buf, 1, size, fp);
+	buf[size] = '\0';
+
+	fclose(fp);
+
+	return buf;
 }
+
 
 static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
-	// create a shader object
+	// create a shader object 
 	GLuint ShaderObj = glCreateShader(ShaderType);
 
 	if (ShaderObj == 0) {
-		fprintf(stderr, "Error creating shader type %d\n", ShaderType);
-		exit(0);
+		std::cerr << "Error creating shader..." << std::endl;
+		std::cerr << "Press enter/return to exit..." << std::endl;
+		std::cin.get();
+		exit(1);
 	}
-	std::string outShader = readShaderSource(pShaderText);
-	const char* pShaderSource = outShader.c_str();
+	const char* pShaderSource = readShaderSource(pShaderText);
 
 	// Bind the source code to the shader, this happens before compilation
 	glShaderSource(ShaderObj, 1, (const GLchar**)&pShaderSource, NULL);
@@ -80,14 +167,21 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
 	// check for shader related errors using glGetShaderiv
 	glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
 	if (!success) {
-		GLchar InfoLog[1024];
+		GLchar InfoLog[1024] = { '\0' };
 		glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-		fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
+		std::cerr << "Error compiling "
+			<< (ShaderType == GL_VERTEX_SHADER ? "vertex" : "fragment")
+			<< " shader program: " << InfoLog << std::endl;
+		std::cerr << "Press enter/return to exit..." << std::endl;
+		std::cin.get();
 		exit(1);
 	}
 	// Attach the compiled shader object to the program object
 	glAttachShader(ShaderProgram, ShaderObj);
 }
+
+const char* vShader = "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/simpleVertexShader.txt";
+const char* fShader = "C:/Users/Caolan/Desktop/Computer Graphics/Assignment1/simpleFragmentShader.txt";
 
 GLuint CompileShaders()
 {
@@ -95,25 +189,27 @@ GLuint CompileShaders()
 	//Note: we will link all the shaders together into this ID
 	shaderProgramID = glCreateProgram();
 	if (shaderProgramID == 0) {
-		fprintf(stderr, "Error creating shader program\n");
+		std::cerr << "Error creating shader program..." << std::endl;
+		std::cerr << "Press enter/return to exit..." << std::endl;
+		std::cin.get();
 		exit(1);
 	}
 
 	// Create two shader objects, one for the vertex, and one for the fragment shader
-	AddShader(shaderProgramID, "../Shaders/simpleVertexShader.txt", GL_VERTEX_SHADER);
-	AddShader(shaderProgramID, "../Shaders/simpleFragmentShader.txt", GL_FRAGMENT_SHADER);
+	AddShader(shaderProgramID, vShader, GL_VERTEX_SHADER);
+	AddShader(shaderProgramID, fShader, GL_FRAGMENT_SHADER);
 
 	GLint Success = 0;
-	GLchar ErrorLog[1024] = { 0 };
-
-
+	GLchar ErrorLog[1024] = { '\0' };
 	// After compiling all shader objects and attaching them to the program, we can finally link it
 	glLinkProgram(shaderProgramID);
 	// check for program related errors using glGetProgramiv
 	glGetProgramiv(shaderProgramID, GL_LINK_STATUS, &Success);
 	if (Success == 0) {
 		glGetProgramInfoLog(shaderProgramID, sizeof(ErrorLog), NULL, ErrorLog);
-		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
+		std::cerr << "Error linking shader program: " << ErrorLog << std::endl;
+		std::cerr << "Press enter/return to exit..." << std::endl;
+		std::cin.get();
 		exit(1);
 	}
 
@@ -123,55 +219,58 @@ GLuint CompileShaders()
 	glGetProgramiv(shaderProgramID, GL_VALIDATE_STATUS, &Success);
 	if (!Success) {
 		glGetProgramInfoLog(shaderProgramID, sizeof(ErrorLog), NULL, ErrorLog);
-		fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
+		std::cerr << "Invalid shader program: " << ErrorLog << std::endl;
+		std::cerr << "Press enter/return to exit..." << std::endl;
+		std::cin.get();
 		exit(1);
 	}
 	// Finally, use the linked shader program
 	// Note: this program will stay in effect for all draw calls until you replace it with another or explicitly disable its use
 	glUseProgram(shaderProgramID);
-
 	return shaderProgramID;
 }
 #pragma endregion SHADER_FUNCTIONS
 
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
+void generateObjectBufferMesh(const char* mesh, GLuint* vao) {
+	/*----------------------------------------------------------------------------
+	LOAD MESH HERE AND COPY INTO BUFFERS
+	----------------------------------------------------------------------------*/
 
+	//Note: you may get an error "vector subscript out of range" if you are using this code for a mesh that doesnt have positions and normals
+	//Might be an idea to do a check for that before generating and binding the buffer.
 
-
-
-
-void generateObjectBufferTeapot() {
-	GLuint vp_vbo = 0;
-
+	mesh_data = load_mesh(mesh);
+	unsigned int vp_vbo = 0;
 	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normals");
-
+	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
+	//loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
+	
+	glGenVertexArrays(1, vao);
+	glBindVertexArray(*vao);
+	
 	glGenBuffers(1, &vp_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 3 * teapot_vertex_count * sizeof(float), teapot_vertex_points, GL_STATIC_DRAW);
-	GLuint vn_vbo = 0;
+	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mVertices[0], GL_STATIC_DRAW);
+
+	unsigned int vn_vbo = 0;
 	glGenBuffers(1, &vn_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 3 * teapot_vertex_count * sizeof(float), teapot_normals, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[0], GL_STATIC_DRAW);
 
-	glGenVertexArrays(1, &teapot_vao);
-	glBindVertexArray(teapot_vao);
-
+	//unsigned int vao = 0;
 	glEnableVertexAttribArray(loc1);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
 	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
 	glEnableVertexAttribArray(loc2);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
 	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	glBindVertexArray(0);
 }
-
-
 #pragma endregion VBO_FUNCTIONS
-
-
-double timeN = 0;
-double rot = 0;
 
 
 void display() {
@@ -188,91 +287,79 @@ void display() {
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model");
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
+	
+	// Root of scene
+	mat4 view = identity_mat4();
+	mat4 persp_proj = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	vec3 translation = vec3(translate_x, 0.0f, -5.0f);
+	view = translate(view, translation);
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 
 
-	//Here is where the code for the viewport lab will go, to get you started I have drawn a t-pot in the bottom left
-	//The model transform rotates the object by 45 degrees, the view transform sets the camera at -40 on the z-axis, and the perspective projection is setup using Antons method
-	//mat4 N = glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+	// Monkey Head 1
+	glBindVertexArray(mesh_vao2);
+	mat4 monkey = identity_mat4();
+	monkey = translate(monkey, vec3((-3.0f + monkey_x), 0.0f, 0.0f));
+	monkey = view * monkey;
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, monkey.m);
+	glDrawArrays(GL_TRIANGLES, 0, mesh_data.mPointCount);
 
-	// top-left
-	int xTL = 0;
-	int yTL = height / 2;
+	// Set up cylinder 1
+	glBindVertexArray(mesh_vao1);
+	mat4 modelChild = identity_mat4();
+	modelChild = rotate_y_deg(modelChild, rotate_y);
+	modelChild = scale(modelChild, vec3(0.5f, 0.5f, 1.0f));
+	modelChild = translate(modelChild, vec3(-0.3f, 1.6f, 0.0f));
 
-	mat4 viewTL = translate(identity_mat4(), vec3(0.0, 0.0, -40.0)); 
-	mat4 persp_projTL = perspective(45.0, 1.5, 40.0, 200.0);
-	mat4 modelTL = rotate_x_deg(identity_mat4(), 90);
+	//Set up cylinder 2
+	mat4 modelChild2 = identity_mat4();
+	modelChild2 = rotate_y_deg(modelChild2, rotate_y);
+	modelChild2 = scale(modelChild2, vec3(0.5f, 0.5f, 1.0f));
+	modelChild2 = translate(modelChild2, vec3(0.3f, 1.6f, 0.0f));
 
-	glViewport(0, yTL, width/2, height / 2);
-	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projTL.m);
-	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewTL.m);
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelTL.m);
-	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
+	// Apply the root matrix to the child matrices
+	modelChild = monkey * modelChild;
+	modelChild2 = monkey * modelChild2;
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelChild.m);
+	glDrawArrays(GL_TRIANGLES, 0, mesh_data.mPointCount);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelChild2.m);
+	glDrawArrays(GL_TRIANGLES, 0, mesh_data.mPointCount);
 
-	// bottom-left
-	int xBL = 0;
-	int yBL = 0;
 
-	mat4 viewBL = translate(identity_mat4(), vec3(0.0, 0.0, -50.0));
-	mat4 persp_projBL = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 50.0f);
+	// Monkey head 2 
+	glBindVertexArray(mesh_vao2);
+	mat4 monkey2 = identity_mat4();
+	monkey2 = translate(monkey2, vec3((3.0f + monkey2_x), 0.0f, 0.0f));
+	monkey2 = view * monkey2;
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, monkey2.m);
+	glDrawArrays(GL_TRIANGLES, 0, mesh_data.mPointCount);
 
-	//persp_projBL = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
-	mat4 modelBL = rotate_z_deg(identity_mat4(), 0);
-	modelBL = rotate_y_deg(modelBL, -30);
-	modelBL = rotate_x_deg(modelBL, 30);
 
-	glViewport(xBL, yBL, width / 2, height / 2);
-	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projBL.m);
-	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewBL.m);
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelBL.m);
-	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
-
-	// top right
-	int xTR = width / 2;
-	int yTR = height / 2;
-
-	vec3 cam = vec3(0, 30, 60);
-	vec3 look = vec3(0, 0, -40);
-	vec3 up = vec3(0, 1, 0);
-	mat4 viewTR = look_at(cam, look, up);
-	//mat4 viewTR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
-
-	mat4 persp_projTR = perspective(45.0, (float)width/(float)height, 0.1, 100.0);
-	mat4 modelTR = rotate_z_deg(identity_mat4(), 0);
-
-	glViewport(xTR, yTR, width / 2, height / 2);
-	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projTR.m);
-	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewTR.m);
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelTR.m);
-	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
-
-	// bottom- right
-	int xBR = width / 2;
-	int yBR = 0;
-
-	mat4 viewBR = translate(identity_mat4(), vec3(0.0, 0.0, -40.0));
-	mat4 persp_projBR = perspective(45.0, 1.0, 0.1, 100.0);
-	rot += 0.2;
-	mat4 modelBR = rotate_y_deg(identity_mat4(), rot);
-
-	glViewport(xBR, yBR, width / 2, height / 2);
-	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_projBR.m);
-	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, viewBR.m);
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, modelBR.m);
-	glDrawArrays(GL_TRIANGLES, 0, teapot_vertex_count);
-
+	// Cylinder for monkey head 2
+	glBindVertexArray(mesh_vao1);
+	mat4 cyl3 = identity_mat4();
+	cyl3 = scale(cyl3, vec3(0.5, 0.5f, 1.0f));
+	cyl3 = translate(cyl3, vec3(-0.3f, 1.6f, 0.0f));
+	cyl3 = monkey2 * cyl3;
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, cyl3.m);
+	glDrawArrays(GL_TRIANGLES, 0, mesh_data.mPointCount);
 	glutSwapBuffers();
 }
 
+
 void updateScene() {
 
-	// Wait until at least 16ms passed since start of last frame (Effectively caps framerate at ~60fps)
-	static double  last_time = 0;
-	double curr_time = timeGetTime();
-	timeN = curr_time;
-	float  delta = (curr_time - last_time) * 0.001f;
-	if (delta > 0.03f)
-		delta = 0.03f;
+	static DWORD last_time = 0;
+	DWORD curr_time = timeGetTime();
+	if (last_time == 0)
+		last_time = curr_time;
+	float delta = (curr_time - last_time) * 0.001f;
 	last_time = curr_time;
+
+	// Rotate the model slowly around the y axis at 20 degrees per second
+	rotate_y += 20.0f * delta;
+	rotate_y = fmodf(rotate_y, 360.0f);
 
 	// Draw the next frame
 	glutPostRedisplay();
@@ -281,20 +368,39 @@ void updateScene() {
 
 void init()
 {
-	// Create 3 vertices that make up a triangle that fits on the viewport 
-	GLfloat vertices[] = { -1.0f, -1.0f, 0.0f, 1.0,
-			1.0f, -1.0f, 0.0f, 1.0,
-			0.0f, 1.0f, 0.0f, 1.0 };
-	// Create a color array that identfies the colors of each vertex (format R, G, B, A)
-	GLfloat colors[] = { 0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f };
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
+	// load mesh into a vertex buffer array
+	generateObjectBufferMesh(CYL, &mesh_vao1);
+	generateObjectBufferMesh(MESH_NAME, &mesh_vao2);
 
-	// load teapot mesh into a vertex buffer array
-	generateObjectBufferTeapot();
+}
 
+// Placeholder code for the keypress
+void keypress(unsigned char key, int x, int y) {
+	// x and y move "scene"
+	if (key == 'x') {
+		translate_x += 0.5f;
+	}
+	if (key == 'y') {
+		translate_x -= 0.5f;
+	}
+
+	// m and n move "monkey"
+	if (key == 'm') {
+		monkey_x += 0.5f;
+	}
+	if (key == 'n') {
+		monkey_x -= 0.5f;
+	}
+
+	// t and u move "monkey2"
+	if (key == 't') {
+		monkey2_x += 0.5f;
+	}
+	if (key == 'u') {
+		monkey2_x -= 0.5f;
+	}
 }
 
 int main(int argc, char** argv) {
@@ -303,13 +409,14 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Viewport Teapots");
+	glutCreateWindow("Hello Triangle");
+
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 	glutIdleFunc(updateScene);
+	glutKeyboardFunc(keypress);
 
 	// A call to glewInit() must be done after glut is initialized!
-	glewExperimental = GL_TRUE; //for non-lab machines, this line gives better modern GL support
 	GLenum res = glewInit();
 	// Check for any errors
 	if (res != GLEW_OK) {

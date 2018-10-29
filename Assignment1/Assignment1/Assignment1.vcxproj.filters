@@ -37,4 +37,8 @@
     <Text Include="..\Shaders\simpleFragmentShader.txt" />
     <Text Include="..\Shaders\simpleVertexShader.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="monkeyhead_smooth.dae" />
+    <None Include="..\cyl.dae" />
+  </ItemGroup>
 </Project>
