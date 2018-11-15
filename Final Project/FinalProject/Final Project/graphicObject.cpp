@@ -2,6 +2,8 @@
 #include <assimp/cimport.h> // scene importer
 #include <assimp/scene.h> // collects data
 #include <assimp/postprocess.h> // various extra operations
+
+//Headers
 #include "maths_funcs.h"
 #include "shader_s.h"
 
@@ -65,3 +67,10 @@ ModelData load_mesh(const char* file_name) {
 	aiReleaseImport(scene);
 	return modelData;
 }
+
+void initialiseShaders(const char* vs, const char* fs, Shader* s)
+{
+	Shader myShader(vs, fs);
+	s = &myShader;
+}
+

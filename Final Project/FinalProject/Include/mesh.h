@@ -2,6 +2,10 @@
 #define MESH
 #include "maths_funcs.h"
 #include "shader_s.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <vector> // STL dynamic memory.
 
 using namespace std;
 #pragma region SimpleTypes

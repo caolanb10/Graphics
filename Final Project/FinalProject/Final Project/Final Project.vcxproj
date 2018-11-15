@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,7 +23,7 @@
     <ProjectGuid>{B462BC51-96C4-459C-8E01-D431EB81D271}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FinalProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -109,10 +109,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Shaders;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\glm;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\glew-1.10.0\include;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Include;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\freeglut\include;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\assimp\lib\Debug;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\glew-1.10.0\lib\Release\Win32;C:\Users\barryc10\Desktop\Graphics\Final Project\FinalProject\Libs\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;glew32.lib;freeglut.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -157,12 +160,12 @@
     <ClInclude Include="..\Include\maths_funcs.h" />
     <ClInclude Include="..\Include\shader_s.h" />
     <ClInclude Include="..\Include\teapot.h" />
-    <ClInclude Include="mesh.h" />
+    <ClInclude Include="graphicObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Final Project.cpp" />
     <ClCompile Include="maths_funcs.cpp" />
-    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="graphicObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\FragmentShader.fs" />
