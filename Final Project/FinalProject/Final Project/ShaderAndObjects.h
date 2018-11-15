@@ -6,8 +6,8 @@ std::string shaders = "C:/Users/Caolan/Desktop/Computer Graphics/Final Project/F
 std::string objects = "C:/Users/Caolan/Desktop/Computer Graphics/Final Project/FinalProject/Objects";
 
 //Individual shader files
-std::string vs1 = shaders + "/VertexShader.vs";
-std::string fs1 = shaders + "/FragmentShader.fs";
+std::string vs1 = shaders + "/VertexShader.glsl";
+std::string fs1 = shaders + "/FragmentShader.glsl";
 
 //3D objects
 std::string monk1 = objects + "/monkeyhead_smooth.dae";
