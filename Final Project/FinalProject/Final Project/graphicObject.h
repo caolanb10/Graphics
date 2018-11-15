@@ -91,8 +91,9 @@ public:
 		glBindVertexArray(0);
 	}
 	
-	void position(float x, float y, float z)
+	void changePosition(float x, float y, float z)
 	{
+		position = identity_mat4();
 
 	}
 };
