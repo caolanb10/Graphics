@@ -2,14 +2,13 @@
 
 in vec3 vertex_position;
 in vec3 vertex_normal;
-
+in vec3 vertex_texture;
 
 out vec3 LightIntensity;
 
 vec4 LightPosition = vec4 (10.0, 10.0, 4.0, 1.0); // Light position in world coords.
 vec3 Kd = vec3 (0.0, 0.8, 0.0); // green diffuse surface reflectance
 vec3 Ld = vec3 (1.0, 1.0, 1.0); // Light source intensity
-
 
 uniform mat4 view;
 uniform mat4 proj;

@@ -28,7 +28,7 @@ typedef struct
 
 #pragma endregion SimpleTypes
 ModelData load_mesh(const char* file_name);
-void initialiseShaders(const char* vs, const char* fs, Shader* s);
+Shader * initialiseShaders(const char* vs, const char* fs, Shader* s);
 
 
 //-----------------------------------------------------------------//
@@ -40,12 +40,13 @@ public:
 	const char * mesh;
 	GLuint vao;
 	GLuint shaderProgramID;
+	ModelData mesh_data;
+	mat4 position;
+	
+	//Position data
 	int matrix_location;
 	int view_mat_location;
 	int proj_mat_location;
-	Shader * thisShader;
-	ModelData mesh_data;
-	mat4 position;
 
 	GraphicObject(const char* m, GLuint ID) 
 	{
@@ -54,9 +55,9 @@ public:
 		matrix_location = glGetUniformLocation(shaderProgramID, "model");
 		view_mat_location = glGetUniformLocation(shaderProgramID, "view");
 		proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
-		
-		createObject();
+		position = identity_mat4();
 
+		createObject();
 	}
 
 	void createObject()
@@ -65,7 +66,6 @@ public:
 		GLuint loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
 		GLuint loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
 		GLuint loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
-		mesh_data = load_mesh(mesh);
 
 		unsigned int vp_VBO;
 		glGenVertexArrays(1, &vao);
@@ -91,10 +91,31 @@ public:
 		glBindVertexArray(0);
 	}
 	
-	void changePosition(float x, float y, float z)
+	void makeActive()
 	{
-		position = identity_mat4();
+		glBindVertexArray(vao);
+	}
 
+	void translatePos(float x, float y, float z)
+	{
+		position = translate(position, vec3(x, y, z));
+	}
+
+	void rotate(float x, float y, float z)
+	{
+		position = rotate_x_deg(position, x);
+		position = rotate_y_deg(position, y);
+		position = rotate_z_deg(position, z);
+	}
+
+	void scalePos(float x, float y, float z)
+	{
+		position = scale(position, vec3(x, y, z));
+	}
+
+	void attach(mat4 parent)
+	{
+		position = position * parent;
 	}
 };
 

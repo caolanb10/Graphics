@@ -1,2 +1,4 @@
 ﻿  Final Project.cpp
-  Final Project.vcxproj -> C:\Users\Caolan\Desktop\Computer Graphics\Final Project\FinalProject\Debug\Final Project.exe
+  LINK : C:\Users\Caolan\Desktop\Computer Graphics\Final Project\FinalProject\Debug\Final Project.exe not found or not built by the last incremental link; performing full link
+graphicObject.obj : error LNK2005: "struct ModelData __cdecl load_mesh(char const *)" (?load_mesh@@YA?AUModelData@@PBD@Z) already defined in Final Project.obj
+C:\Users\Caolan\Desktop\Computer Graphics\Final Project\FinalProject\Debug\Final Project.exe : fatal error LNK1169: one or more multiply defined symbols found

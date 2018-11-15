@@ -27,6 +27,9 @@
     <ClInclude Include="graphicObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderAndObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Final Project.cpp">
