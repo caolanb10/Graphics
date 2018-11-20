@@ -18,6 +18,9 @@ public:
 	GLint getBufferHeight() { return bufferHeight; }
 
 	bool getShouldClose() { return glfwWindowShouldClose(mainWindow); }
+	bool* getKey() { return keys; }
+	GLfloat getXChange();
+	GLfloat getYChange();
 
 	void swapBuffers() { glfwSwapBuffers(mainWindow); }
 
@@ -35,7 +38,7 @@ private:
 	GLfloat lastY;
 
 	//Delta x, y for camera movement
-	GLfloat xCahnge;
+	GLfloat xChange;
 	GLfloat yChange;
 
 	//Dont immediately rotate at mouse position

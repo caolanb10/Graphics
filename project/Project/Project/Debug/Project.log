@@ -1,6 +1,2 @@
-﻿  Project.cpp
-  Window.cpp
-  Generating Code...
-c:\users\caolan\desktop\computer graphics\project\project\project\window.cpp(87): warning C4715: 'Window::Initialise': not all control paths return a value
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+﻿  Camera.cpp
   Project.vcxproj -> C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Debug\Project.exe

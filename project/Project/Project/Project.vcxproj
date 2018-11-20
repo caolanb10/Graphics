@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="..\Include\Shader.h" />
     <ClInclude Include="..\Include\teapot.h" />
     <ClInclude Include="..\Include\Window.h" />
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
