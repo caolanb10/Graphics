@@ -1,2 +1,4 @@
-﻿  Camera.cpp
+﻿  Project.cpp
+c:\users\caolan\desktop\computer graphics\project\project\project\project.cpp(102): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\users\caolan\desktop\computer graphics\project\project\project\project.cpp(123): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
   Project.vcxproj -> C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Debug\Project.exe

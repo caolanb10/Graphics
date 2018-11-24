@@ -1,26 +1,26 @@
 #include "Camera.h"
-#include <stdlib.h>
-#include <string>
 
-Camera::Camera() {};
-Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat pitch1, GLfloat speed, GLfloat speed1)
+Camera::Camera() {}
+
+Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat startMoveSpeed, GLfloat startTurnSpeed)
 {
 	position = startPosition;
 	worldUp = startUp;
-	yaw = 0;
-	pitch = pitch1;
+	yaw = startYaw;
+	pitch = startPitch;
 	front = glm::vec3(0.0f, 0.0f, -1.0f);
 
-	movementSpeed = speed;
-	turnSpeed = speed1;
+	moveSpeed = startMoveSpeed;
+	turnSpeed = startTurnSpeed;
 
 	update();
 }
-void Camera::keyControl(bool * keys, GLfloat deltaT)
-{
-	GLfloat velocity = movementSpeed * deltaT;
 
-	if(keys[GLFW_KEY_W])
+void Camera::keyControl(bool* keys, GLfloat deltaTime)
+{
+	GLfloat velocity = moveSpeed * deltaTime;
+
+	if (keys[GLFW_KEY_W])
 	{
 		position += front * velocity;
 	}
@@ -39,12 +39,6 @@ void Camera::keyControl(bool * keys, GLfloat deltaT)
 	{
 		position += right * velocity;
 	}
-	
-}
-
-glm::mat4 Camera::calculateViewMatrix()
-{
-	return(glm::lookAt(position, position + front, up));
 }
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
@@ -65,33 +59,25 @@ void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
 		pitch = -89.0f;
 	}
 
-	if (yaw < 0.0001f)
-		yaw = 0.0001f;
-	
-	if (yaw == 10000.0f)
-		yaw = 10000.0f;
-
-
-
-	std::cout << "yaw:" << yaw << "\n";
-	std::cout << "pitch:" << pitch << "\n";
-
 	update();
-
 }
 
+glm::mat4 Camera::calculateViewMatrix()
+{
+	return glm::lookAt(position, position + front, up);
+}
 
 void Camera::update()
 {
-	front.x = cos(glm::radians(yaw) * cos(glm::radians(pitch)));
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw) * cos(glm::radians(pitch)));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front = glm::normalize(front);
 
 	right = glm::normalize(glm::cross(front, worldUp));
 	up = glm::normalize(glm::cross(right, front));
-
 }
+
 
 Camera::~Camera()
 {

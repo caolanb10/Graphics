@@ -17,7 +17,8 @@ Window::Window()
 	{
 		keys[i] = 0;
 	}
-
+	xChange = 0;
+	yChange = 0;
 }
 
 Window::Window(GLint windowWidth, GLint windowHeight)
@@ -28,6 +29,8 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	{
 		keys[i] = 0;
 	}
+	xChange = 0;
+	yChange = 0;
 }
 
 int Window::Initialise()
