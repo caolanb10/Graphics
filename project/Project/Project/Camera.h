@@ -18,6 +18,8 @@ public:
 
 	glm::mat4 calculateViewMatrix();
 
+	glm::vec3 getPosition();
+
 	~Camera();
 
 private:
