@@ -91,13 +91,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glew-1.10.0\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glfw-3.2.1.bin.WIN32\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp1\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glew-1.10.0\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glfw-3.2.1.bin.WIN32\include;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glew-1.10.0\lib\Release\Win32;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;assimp.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp1\lib;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\glew-1.10.0\lib\Release\Win32;C:\Users\Caolan\Desktop\Computer Graphics\Project\Project\Libs\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;assimp.lib;glew32.lib;glfw3.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="..\Include\teapot.h" />
     <ClInclude Include="..\Include\Window.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Terrain.h" />

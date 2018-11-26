@@ -2,7 +2,7 @@
 
 Terrain::Terrain()
 {
-	const int count = 128 * 128;
+	const int count = 16384;
 	const int vert = 127;
 	float vertices[count * 5];
 	unsigned int indices[6*vert*vert];

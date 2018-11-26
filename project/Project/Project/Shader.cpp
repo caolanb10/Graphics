@@ -84,7 +84,9 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	uniformAmbientIntensity = glGetUniformLocation(shaderID, "dirLight.ambientIntensity");
 	uniformDiffuseIntensity = glGetUniformLocation(shaderID, "dirLight.diffuseIntensity");
 	uniformDirection = glGetUniformLocation(shaderID, "dirLight.direction");
-
+	uniformCameraPosition = glGetUniformLocation(shaderID, "camera");
+	uniformSpecularIntensity = glGetUniformLocation(shaderID, "mat.specIntensity");
+	uniformShine = glGetUniformLocation(shaderID, "mat.shine");
 }
 
 GLuint Shader::GetProjectionLocation()
@@ -121,17 +123,17 @@ GLuint Shader::GetDirectionLocation()
 	return uniformDirection;
 }
 
-GLuint Shader::GetUniformCameraPosition()
+GLuint Shader::GetCameraLocation()
 {
 	return uniformCameraPosition;
 }
 
-GLuint Shader::GetUniformSpecularIntensity()
+GLuint Shader::GetSpecularIntensityLocation()
 {
 	return uniformSpecularIntensity;
 }
 
-GLuint Shader::GetUniformShine()
+GLuint Shader::GetShineLocation()
 {
 	return uniformShine;
 }

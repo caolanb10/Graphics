@@ -10,7 +10,9 @@ public:
 	Texture(char* file);
 	~Texture();
 
-	void load();
+	bool load();
+	bool loadA();
+
 	void use();
 	void clear();
 

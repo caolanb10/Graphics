@@ -24,9 +24,9 @@ public:
 	GLuint GetAmbientIntensityLocation();
 	GLuint GetDiffuseIntensityLocation();
 	GLuint GetDirectionLocation();
-	GLuint GetUniformCameraPosition();
-	GLuint GetUniformSpecularIntensity();
-	GLuint GetUniformShine();
+	GLuint GetCameraLocation();
+	GLuint GetSpecularIntensityLocation();
+	GLuint GetShineLocation();
 
 	void UseShader();
 	void ClearShader();
