@@ -16,6 +16,9 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 	update();
 }
 
+//Callback function for keyInuts
+//Movement keys are : w (up), a (left), s (down), d (right)
+
 void Camera::keyControl(bool* keys, GLfloat deltaTime)
 {
 	GLfloat velocity = moveSpeed * deltaTime;
@@ -40,6 +43,8 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 		position += right * velocity;
 	}
 }
+//Mouse movement call back
+//Only changes pitch and yaw based on delta(x) and delta(y)
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
 {
@@ -72,6 +77,7 @@ glm::vec3 Camera::getPosition()
 	return position;
 }
 
+//Update cameras vectors based on mouse movement
 void Camera::update()
 {
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

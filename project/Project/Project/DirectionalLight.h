@@ -3,6 +3,7 @@
 class DirectionalLight :
 	public Light
 {
+
 public:
 	DirectionalLight();
 	DirectionalLight(GLfloat red, GLfloat green, GLfloat blue,

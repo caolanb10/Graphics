@@ -161,7 +161,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -173,15 +173,18 @@
     <ClInclude Include="..\Include\teapot.h" />
     <ClInclude Include="..\Include\Window.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
+    <None Include="Shaders\FragmentShaderSky.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
+    <None Include="Shaders\VertexShaderSky.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
